@@ -1,4 +1,4 @@
-mport { useState } from "react";
+import { useState } from "react";
 
 function App() {
   const [a, setA] = useState<number>(0);
