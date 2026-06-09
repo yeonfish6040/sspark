@@ -4,7 +4,7 @@ import axios from "axios";
 
 function App() {
   const client = axios.create({
-    url: "http://yeonfishvm.local:3001/",
+    baseURL: "http://yeonfishvm.local:3001/",
     headers: {
       "Content-Type": "application/json",
     },
