@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-COPY backend ./backend
+COPY . .
 
 EXPOSE 3001
 
