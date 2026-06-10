@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 3001
 
-CMD ["node", "backend/server.ts"]
+CMD ["ts-node", "server.ts"]
