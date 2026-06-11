@@ -1,5 +1,5 @@
 import express, { type NextFunction, type Request, type Response } from "express";
-import { type ResultSetHeader } from "mysql2/promise";
+import { type ResultSetHeader, type RowDataPacket } from "mysql2/promise";
 import { db } from "./db.ts";
 
 const PORT = Number(process.env.PORT ?? 3001);
@@ -11,9 +11,17 @@ type SaveRequestBody = {
   name?: string;
 };
 
-type JsonResponse =
-  | { ok: true; insertedId?: number }
-  | { ok: false; message: string };
+type StudentRow = {
+  id: number;
+  student_no: string;
+  name: string;
+};
+
+type ApiErrorResponse = { ok: false; message: string };
+type HealthResponse = { ok: true };
+type SaveResponse = { ok: true; insertedId: number };
+type StudentsResponse = { ok: true; students: StudentRow[] };
+type JsonResponse = HealthResponse | SaveResponse | StudentsResponse | ApiErrorResponse;
 
 const app = express();
 
@@ -32,6 +40,27 @@ app.options("*", (_, res) => {
 app.get("/health", (_req, res) => {
   const payload: JsonResponse = { ok: true };
   res.status(200).json(payload);
+});
+
+app.get("/students", async (_req, res, next) => {
+  try {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `SELECT id, student_no, name FROM \`${TABLE_NAME}\` ORDER BY id DESC`,
+    );
+
+    const students: StudentRow[] = rows.map((row) => ({
+      id: Number(row.id),
+      student_no: String(row.student_no),
+      name: String(row.name),
+    }));
+
+    res.status(200).json({
+      ok: true,
+      students,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.post(
