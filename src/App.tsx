@@ -56,20 +56,16 @@ function App() {
   return (
     <div className="page-shell">
       <main className="app-shell">
-        <section className="hero-card">
+        <section className="hero">
           <div className="hero-copy">
-            <p className="eyebrow">Student Sync</p>
             <h1>학생 정보를 저장하고 바로 확인</h1>
-            <p className="hero-text">
-              학번과 이름을 입력하면 DB에 저장되고, 아래 목록에 즉시 반영됩니다.
-            </p>
           </div>
 
           <div className="status-pill">{message}</div>
         </section>
 
         <section className="content-grid">
-          <div className="panel form-panel">
+          <div className="form-panel">
             <h2>저장</h2>
             <div className="field">
               <label htmlFor="number">학번</label>
@@ -100,7 +96,7 @@ function App() {
             </button>
           </div>
 
-          <div className="panel list-panel">
+          <div className="list-panel">
             <div className="panel-header">
               <div>
                 <h2>저장된 목록</h2>
