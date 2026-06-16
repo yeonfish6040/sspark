@@ -29,13 +29,36 @@
   white-space: nowrap;
 }
 
-.content-flex {
+.workspace {
   display: flex;
   gap: 28px;
   margin-top: 20px;
 }
 
-.content-pane {
+.menu-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 160px;
+  flex: 0 0 160px;
+}
+
+.menu-button {
+  border: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.menu-button.active {
+  box-shadow: inset 0 0 0 2px;
+}
+
+.page-panel {
   flex: 1;
   min-width: 0;
 }
@@ -148,7 +171,12 @@ tbody tr + tr td {
     flex-direction: column;
   }
 
-  .content-flex {
+  .workspace {
     flex-direction: column;
+  }
+
+  .menu-panel {
+    width: 100%;
+    flex-basis: auto;
   }
 }

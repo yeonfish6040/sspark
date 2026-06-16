@@ -12,7 +12,10 @@ const client = axios.create({
   },
 });
 
+type View = "insert" | "search";
+
 function App() {
+  const [view, setView] = useState<View>("insert");
   const [num, setNum] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [message, setMessage] = useState<string>("준비됨");
@@ -61,20 +64,40 @@ function App() {
           <div className="status-pill">{message}</div>
         </section>
 
-        <div className="content-flex">
-          <div className="content-pane">
-            <Insert
-              num={num}
-              name={name}
-              onNumChange={setNum}
-              onNameChange={setName}
-              onSave={save}
-            />
-          </div>
+        <div className="workspace">
+          <aside className="menu-panel">
+            <button
+              className={view === "insert" ? "menu-button active" : "menu-button"}
+              onClick={() => setView("insert")}
+              type="button"
+            >
+              삽입
+            </button>
+            <button
+              className={view === "search" ? "menu-button active" : "menu-button"}
+              onClick={() => {
+                setView("search");
+                void loadStudents();
+              }}
+              type="button"
+            >
+              검색
+            </button>
+          </aside>
 
-          <div className="content-pane">
-            <Search students={students} loading={loading} onRefresh={() => void loadStudents()} />
-          </div>
+          <section className="page-panel">
+            {view === "insert" ? (
+              <Insert
+                num={num}
+                name={name}
+                onNumChange={setNum}
+                onNameChange={setName}
+                onSave={save}
+              />
+            ) : (
+              <Search students={students} loading={loading} onRefresh={() => void loadStudents()} />
+            )}
+          </section>
         </div>
       </main>
     </div>
