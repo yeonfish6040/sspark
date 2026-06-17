@@ -56,22 +56,15 @@ function App() {
   return (
     <div className="page-shell">
       <main className="app-shell">
-        <section className="hero">
-          <div className="hero-copy">
-            <h1>학생 정보를 저장하고 바로 확인</h1>
-          </div>
-
-          <div className="status-pill">{message}</div>
-        </section>
-
         <div className="workspace">
           <aside className="menu-panel">
+            <h2 className="menu-title">메뉴</h2>
             <button
               className={view === "insert" ? "menu-button active" : "menu-button"}
               onClick={() => setView("insert")}
               type="button"
             >
-              삽입
+              입력
             </button>
             <button
               className={view === "search" ? "menu-button active" : "menu-button"}
@@ -86,6 +79,10 @@ function App() {
           </aside>
 
           <section className="page-panel">
+            <div className="page-head">
+              <h1>{view === "insert" ? "학생 정보 입력" : "저장된 학생 목록"}</h1>
+              <div className="status-pill">{message}</div>
+            </div>
             {view === "insert" ? (
               <Insert
                 num={num}

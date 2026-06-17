@@ -8,6 +8,8 @@
     sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color: #dedede;
+  background: #17181d;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -16,12 +18,14 @@
 
 html {
   min-height: 100%;
+  background: #17181d;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: #17181d;
 }
 
 button,

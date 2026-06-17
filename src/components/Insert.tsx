@@ -9,7 +9,6 @@ type InsertProps = {
 function Insert({ num, name, onNumChange, onNameChange, onSave }: InsertProps) {
   return (
     <div className="form-panel">
-      <h2>저장</h2>
       <div className="field">
         <label htmlFor="number">학번</label>
         <input
@@ -34,8 +33,8 @@ function Insert({ num, name, onNumChange, onNameChange, onSave }: InsertProps) {
         />
       </div>
 
-      <button className="primary-button" onClick={onSave}>
-        전송
+      <button className="primary-button" onClick={onSave} type="button">
+        저장
       </button>
     </div>
   );

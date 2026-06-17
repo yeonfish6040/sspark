@@ -1,133 +1,154 @@
 .page-shell {
   min-height: 100vh;
+  background: #17181d;
+  color: #dedede;
 }
 
 .app-shell {
-  width: min(960px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 24px 0 32px;
-}
-
-.hero {
+  min-height: 100vh;
   display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  align-items: flex-start;
-  padding: 0 0 16px;
-  border-bottom: 1px solid;
-}
-
-.hero-copy h1 {
-  margin: 0;
-  font-size: clamp(1.7rem, 3vw, 2.6rem);
-  line-height: 1.15;
-}
-
-.status-pill {
-  padding: 10px 14px;
-  border: 1px solid;
-  white-space: nowrap;
 }
 
 .workspace {
+  width: 100%;
   display: flex;
-  gap: 28px;
-  margin-top: 20px;
+  min-height: 100vh;
 }
 
 .menu-panel {
+  width: 220px;
+  flex: 0 0 220px;
+  border-right: 1px solid #32343d;
+  padding: 56px 18px 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 160px;
-  flex: 0 0 160px;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.menu-title {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #b8b8b8;
+  text-align: center;
 }
 
 .menu-button {
-  border: 0;
-  background: transparent;
-  box-shadow: inset 0 0 0 1px;
+  border: 1px solid #5a5a5a;
+  background: #7a7a7a;
+  color: #f2f2f2;
   font: inherit;
-  font-weight: 700;
+  padding: 8px 12px;
   cursor: pointer;
-  padding: 12px 14px;
-  text-align: left;
+  align-self: center;
+  min-width: 74px;
 }
 
 .menu-button.active {
-  box-shadow: inset 0 0 0 2px;
+  background: #9a9a9a;
 }
 
 .page-panel {
   flex: 1;
   min-width: 0;
+  padding: 72px 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-head {
+  width: min(100%, 360px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 700;
+  text-align: center;
+  color: #f2f2f2;
+}
+
+.status-pill {
+  min-width: 92px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  color: #efefef;
+  font-size: 1rem;
+}
+
+.form-panel,
+.list-panel {
+  width: min(100%, 360px);
 }
 
 .form-panel {
-  padding: 0;
-}
-
-.form-panel h2,
-.list-panel h2 {
-  margin: 0;
-  font-size: 1.1rem;
+  display: grid;
+  gap: 10px;
 }
 
 .field {
   display: grid;
-  gap: 8px;
-  margin-top: 18px;
+  grid-template-columns: 1fr 1.8fr;
+  align-items: center;
+  gap: 10px;
 }
 
 .field label {
   font-size: 0.95rem;
-  font-weight: 600;
+  color: #c8c8c8;
+  text-align: right;
 }
 
 .field input {
-  border: none;
-  padding: 12px 14px;
+  width: 100%;
+  border: 1px solid #656565;
+  background: #3b3b3b;
+  color: #f4f4f4;
+  padding: 3px 6px;
   font: inherit;
   outline: none;
-  box-shadow: inset 0 0 0 1px;
+}
+
+.field input::placeholder {
+  color: #b1b1b1;
 }
 
 .field input:focus {
-  box-shadow: inset 0 0 0 2px;
+  border-color: #9c9c9c;
 }
 
 .primary-button,
 .ghost-button {
-  border: 0;
+  border: 1px solid #6b6b6b;
+  background: #686868;
+  color: #f2f2f2;
   font: inherit;
-  font-weight: 700;
   cursor: pointer;
+  padding: 4px 12px;
 }
 
 .primary-button {
-  width: 100%;
-  margin-top: 18px;
-  padding: 14px 16px;
-  background: transparent;
-  box-shadow: inset 0 0 0 1px;
-}
-
-.ghost-button {
-  padding: 10px 14px;
-  background: transparent;
-  box-shadow: inset 0 0 0 1px;
+  width: 84px;
+  justify-self: center;
+  margin-top: 2px;
 }
 
 .list-panel {
-  padding: 0;
+  display: grid;
+  gap: 12px;
 }
 
 .panel-header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  justify-content: flex-end;
 }
 
 .table-wrap {
@@ -137,40 +158,32 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 320px;
-  background: #fff;
-}
-
-thead {
-  background: transparent;
+  color: #e7e7e7;
 }
 
 th,
 td {
-  padding: 14px 16px;
+  padding: 7px 10px;
   text-align: left;
+  font-size: 0.95rem;
 }
 
 th {
-  font-size: 0.9rem;
-  font-weight: 700;
+  color: #d3d3d3;
+  font-weight: 600;
 }
 
 tbody tr + tr td {
-  border-top: 1px solid;
+  border-top: 1px solid #3a3a3a;
 }
 
 .empty-state {
+  padding: 18px 10px;
   text-align: center;
-  padding: 32px 16px;
+  color: #bdbdbd;
 }
 
 @media (max-width: 900px) {
-  .hero,
-  .panel-header {
-    flex-direction: column;
-  }
-
   .workspace {
     flex-direction: column;
   }
@@ -178,5 +191,16 @@ tbody tr + tr td {
   .menu-panel {
     width: 100%;
     flex-basis: auto;
+    border-right: 0;
+    border-bottom: 1px solid #32343d;
+    padding: 24px 16px;
+  }
+
+  .menu-button {
+    align-self: stretch;
+  }
+
+  .page-panel {
+    padding: 28px 16px 24px;
   }
 }
