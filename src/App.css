@@ -85,13 +85,19 @@
 }
 
 .form-panel,
-.list-panel {
+.list-panel,
+.score-form {
   width: min(100%, 360px);
 }
 
 .form-panel {
   display: grid;
   gap: 10px;
+}
+
+.score-form {
+  display: grid;
+  gap: 8px;
 }
 
 .field {
@@ -101,7 +107,20 @@
   gap: 10px;
 }
 
+.score-field {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  align-items: center;
+  gap: 10px;
+}
+
 .field label {
+  font-size: 0.95rem;
+  color: #c8c8c8;
+  text-align: right;
+}
+
+.score-field label {
   font-size: 0.95rem;
   color: #c8c8c8;
   text-align: right;
@@ -122,6 +141,20 @@
 }
 
 .field input:focus {
+  border-color: #9c9c9c;
+}
+
+.score-field input {
+  width: 100%;
+  border: 1px solid #656565;
+  background: #3b3b3b;
+  color: #f4f4f4;
+  padding: 3px 6px;
+  font: inherit;
+  outline: none;
+}
+
+.score-field input:focus {
   border-color: #9c9c9c;
 }
 
@@ -202,5 +235,10 @@ tbody tr + tr td {
 
   .page-panel {
     padding: 28px 16px 24px;
+  }
+
+  .field,
+  .score-field {
+    grid-template-columns: 1fr 1fr;
   }
 }

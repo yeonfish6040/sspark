@@ -4,11 +4,19 @@ import { db } from "./db.ts";
 
 const PORT = Number(process.env.PORT ?? 3001);
 const TABLE_NAME = process.env.STUDENT_TABLE ?? "student";
+const SCORE_TABLE_NAME = process.env.SCORE_TABLE ?? "score";
 
 type SaveRequestBody = {
   num?: string;
   student_no?: string;
   name?: string;
+};
+
+type ScoreSaveRequestBody = {
+  name?: string;
+  korean?: string;
+  english?: string;
+  math?: string;
 };
 
 type StudentRow = {
@@ -17,11 +25,25 @@ type StudentRow = {
   name: string;
 };
 
+type ScoreRow = {
+  id: number;
+  name: string;
+  korean: string;
+  english: string;
+  math: string;
+};
+
 type ApiErrorResponse = { ok: false; message: string };
 type HealthResponse = { ok: true };
 type SaveResponse = { ok: true; insertedId: number };
 type StudentsResponse = { ok: true; students: StudentRow[] };
-type JsonResponse = HealthResponse | SaveResponse | StudentsResponse | ApiErrorResponse;
+type ScoresResponse = { ok: true; scores: ScoreRow[] };
+type JsonResponse =
+  | HealthResponse
+  | SaveResponse
+  | StudentsResponse
+  | ScoresResponse
+  | ApiErrorResponse;
 
 const app = express();
 
@@ -63,6 +85,29 @@ app.get("/students", async (_req, res, next) => {
   }
 });
 
+app.get("/scores", async (_req, res, next) => {
+  try {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `SELECT id, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ORDER BY id DESC`,
+    );
+
+    const scores: ScoreRow[] = rows.map((row) => ({
+      id: Number(row.id),
+      name: String(row.name),
+      korean: String(row.korean),
+      english: String(row.english),
+      math: String(row.math),
+    }));
+
+    res.status(200).json({
+      ok: true,
+      scores,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post(
   "/save",
   async (
@@ -93,6 +138,55 @@ app.post(
       const [result] = await db.execute<ResultSetHeader>(
         `INSERT INTO \`${TABLE_NAME}\` (student_no, name) VALUES (?, ?)`,
         [studentNo, name],
+      );
+
+      res.status(201).json({
+        ok: true,
+        insertedId: result.insertId,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+app.post(
+  "/scores",
+  async (
+    req: Request<Record<string, never>, JsonResponse, ScoreSaveRequestBody>,
+    res: Response<JsonResponse>,
+    next: NextFunction,
+  ) => {
+    try {
+      const name = req.body.name;
+      const korean = req.body.korean;
+      const english = req.body.english;
+      const math = req.body.math;
+
+      if (
+        typeof name !== "string" ||
+        typeof korean !== "string" ||
+        typeof english !== "string" ||
+        typeof math !== "string"
+      ) {
+        res.status(400).json({
+          ok: false,
+          message: "`name`, `korean`, `english`, and `math` must be strings.",
+        });
+        return;
+      }
+
+      if (!name.trim() || !korean.trim() || !english.trim() || !math.trim()) {
+        res.status(400).json({
+          ok: false,
+          message: "`name`, `korean`, `english`, and `math` are required.",
+        });
+        return;
+      }
+
+      const [result] = await db.execute<ResultSetHeader>(
+        `INSERT INTO \`${SCORE_TABLE_NAME}\` (name, korean, english, math) VALUES (?, ?, ?, ?)`,
+        [name, korean, english, math],
       );
 
       res.status(201).json({
