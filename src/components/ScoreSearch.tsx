@@ -46,12 +46,14 @@ function ScoreSearch({
               <th>국어</th>
               <th>영어</th>
               <th>수학</th>
+              <th>합계</th>
+              <th>평균</th>
             </tr>
           </thead>
           <tbody>
             {scores.length === 0 ? (
               <tr>
-                <td colSpan={5} className="empty-state">
+                <td colSpan={7} className="empty-state">
                   {loading ? "불러오는 중..." : "저장된 성적이 아직 없습니다."}
                 </td>
               </tr>
@@ -63,6 +65,8 @@ function ScoreSearch({
                   <td>{score.korean}</td>
                   <td>{score.english}</td>
                   <td>{score.math}</td>
+                  <td>{score.total}</td>
+                  <td>{score.average.toFixed(2)}</td>
                 </tr>
               ))
             )}

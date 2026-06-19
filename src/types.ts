@@ -10,4 +10,6 @@ export type ScoreRow = {
   korean: string;
   english: string;
   math: string;
+  total: number;
+  average: number;
 };

@@ -31,6 +31,8 @@ type ScoreRow = {
   korean: string;
   english: string;
   math: string;
+  total: number;
+  average: number;
 };
 
 type ApiErrorResponse = { ok: false; message: string };
@@ -46,6 +48,28 @@ type JsonResponse =
   | ApiErrorResponse;
 
 const app = express();
+
+const toNumber = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const toScoreRow = (row: RowDataPacket): ScoreRow => {
+  const korean = toNumber(row.korean);
+  const english = toNumber(row.english);
+  const math = toNumber(row.math);
+  const total = korean + english + math;
+
+  return {
+    id: Number(row.id),
+    name: String(row.name),
+    korean: String(row.korean),
+    english: String(row.english),
+    math: String(row.math),
+    total,
+    average: Number((total / 3).toFixed(2)),
+  };
+};
 
 app.use(express.json());
 app.use((_, res, next) => {
@@ -91,13 +115,7 @@ app.get("/scores", async (_req, res, next) => {
       `SELECT id, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ORDER BY id DESC`,
     );
 
-    const scores: ScoreRow[] = rows.map((row) => ({
-      id: Number(row.id),
-      name: String(row.name),
-      korean: String(row.korean),
-      english: String(row.english),
-      math: String(row.math),
-    }));
+    const scores = rows.map(toScoreRow);
 
     res.status(200).json({
       ok: true,
@@ -119,13 +137,7 @@ app.get("/scores/search", async (req, res, next) => {
       name.length > 0 ? [`%${name}%`] : [],
     );
 
-    const scores: ScoreRow[] = rows.map((row) => ({
-      id: Number(row.id),
-      name: String(row.name),
-      korean: String(row.korean),
-      english: String(row.english),
-      math: String(row.math),
-    }));
+    const scores = rows.map(toScoreRow);
 
     res.status(200).json({
       ok: true,
