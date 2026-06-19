@@ -29,6 +29,7 @@ function App() {
   const [math, setMath] = useState<string>("");
   const [scores, setScores] = useState<ScoreRow[]>([]);
   const [scoreLoading, setScoreLoading] = useState<boolean>(false);
+  const [scoreSearchTerm, setScoreSearchTerm] = useState<string>("");
 
   const loadStudents = async () => {
     setLoading(true);
@@ -51,6 +52,23 @@ function App() {
     } catch (error) {
       console.log(error);
       setMessage("성적 목록을 불러오지 못했음");
+    } finally {
+      setScoreLoading(false);
+    }
+  };
+
+  const searchScores = async () => {
+    setScoreLoading(true);
+    try {
+      const response = await client.get<{ ok: true; scores: ScoreRow[] }>("/scores/search", {
+        params: {
+          name: scoreSearchTerm,
+        },
+      });
+      setScores(response.data.scores);
+    } catch (error) {
+      console.log(error);
+      setMessage("성적 검색 실패");
     } finally {
       setScoreLoading(false);
     }
@@ -176,8 +194,11 @@ function App() {
               />
             ) : (
               <ScoreSearch
+                searchTerm={scoreSearchTerm}
                 scores={scores}
                 loading={scoreLoading}
+                onSearchTermChange={setScoreSearchTerm}
+                onSearch={() => void searchScores()}
                 onRefresh={() => void loadScores()}
               />
             )}

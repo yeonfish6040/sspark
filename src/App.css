@@ -179,6 +179,30 @@
   gap: 12px;
 }
 
+.score-search-bar {
+  display: flex;
+  gap: 8px;
+  width: min(100%, 360px);
+}
+
+.score-search-bar input {
+  flex: 1;
+  border: 1px solid #656565;
+  background: #3b3b3b;
+  color: #f4f4f4;
+  padding: 3px 6px;
+  font: inherit;
+  outline: none;
+}
+
+.score-search-bar input::placeholder {
+  color: #b1b1b1;
+}
+
+.score-search-bar input:focus {
+  border-color: #9c9c9c;
+}
+
 .panel-header {
   display: flex;
   justify-content: flex-end;
@@ -240,5 +264,9 @@ tbody tr + tr td {
   .field,
   .score-field {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .score-search-bar {
+    width: 100%;
   }
 }

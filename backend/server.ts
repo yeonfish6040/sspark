@@ -108,6 +108,34 @@ app.get("/scores", async (_req, res, next) => {
   }
 });
 
+app.get("/scores/search", async (req, res, next) => {
+  try {
+    const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+
+    const [rows] = await db.execute<RowDataPacket[]>(
+      name.length > 0
+        ? `SELECT id, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` WHERE name LIKE ? ORDER BY id DESC`
+        : `SELECT id, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ORDER BY id DESC`,
+      name.length > 0 ? [`%${name}%`] : [],
+    );
+
+    const scores: ScoreRow[] = rows.map((row) => ({
+      id: Number(row.id),
+      name: String(row.name),
+      korean: String(row.korean),
+      english: String(row.english),
+      math: String(row.math),
+    }));
+
+    res.status(200).json({
+      ok: true,
+      scores,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post(
   "/save",
   async (

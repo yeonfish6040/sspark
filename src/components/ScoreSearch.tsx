@@ -1,14 +1,36 @@
 import type { ScoreRow } from "../types";
 
 type ScoreSearchProps = {
+  searchTerm: string;
   scores: ScoreRow[];
   loading: boolean;
+  onSearchTermChange: (value: string) => void;
+  onSearch: () => void;
   onRefresh: () => void;
 };
 
-function ScoreSearch({ scores, loading, onRefresh }: ScoreSearchProps) {
+function ScoreSearch({
+  searchTerm,
+  scores,
+  loading,
+  onSearchTermChange,
+  onSearch,
+  onRefresh,
+}: ScoreSearchProps) {
   return (
     <div className="list-panel">
+      <div className="score-search-bar">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => onSearchTermChange(e.target.value)}
+          placeholder="이름으로 검색"
+        />
+        <button className="ghost-button" onClick={onSearch} type="button">
+          검색
+        </button>
+      </div>
+
       <div className="panel-header">
         <button className="ghost-button" onClick={onRefresh} type="button">
           새로고침
