@@ -6,6 +6,7 @@ export type StudentRow = {
 
 export type ScoreRow = {
   id: number;
+  student_no: string;
   name: string;
   korean: string;
   english: string;

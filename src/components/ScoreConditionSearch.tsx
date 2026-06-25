@@ -1,40 +1,55 @@
 import type { ScoreRow } from "../types";
 
-type ScoreSearchProps = {
-  searchTerm: string;
+type ScoreConditionSearchProps = {
+  studentNo: string;
+  name: string;
   scores: ScoreRow[];
   loading: boolean;
-  onSearchTermChange: (value: string) => void;
+  onStudentNoChange: (value: string) => void;
+  onNameChange: (value: string) => void;
   onSearch: () => void;
   onRefresh: () => void;
 };
 
-function ScoreSearch({
-  searchTerm,
+function ScoreConditionSearch({
+  studentNo,
+  name,
   scores,
   loading,
-  onSearchTermChange,
+  onStudentNoChange,
+  onNameChange,
   onSearch,
   onRefresh,
-}: ScoreSearchProps) {
+}: ScoreConditionSearchProps) {
   return (
     <div className="list-panel">
-      <div className="score-search-bar">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => onSearchTermChange(e.target.value)}
-          placeholder="학번 또는 이름으로 검색"
-        />
-        <button className="ghost-button" onClick={onSearch} type="button">
-          검색
-        </button>
-      </div>
-
-      <div className="panel-header">
-        <button className="ghost-button" onClick={onRefresh} type="button">
-          새로고침
-        </button>
+      <div className="score-conditions">
+        <div className="score-field">
+          <label htmlFor="condition-student-no">학번:</label>
+          <input
+            id="condition-student-no"
+            type="text"
+            value={studentNo}
+            onChange={(e) => onStudentNoChange(e.target.value)}
+          />
+        </div>
+        <div className="score-field">
+          <label htmlFor="condition-name">이름:</label>
+          <input
+            id="condition-name"
+            type="text"
+            value={name}
+            onChange={(e) => onNameChange(e.target.value)}
+          />
+        </div>
+        <div className="score-condition-actions">
+          <button className="ghost-button" onClick={onSearch} type="button">
+            검색
+          </button>
+          <button className="ghost-button" onClick={onRefresh} type="button">
+            전체
+          </button>
+        </div>
       </div>
 
       <div className="table-wrap">
@@ -55,7 +70,7 @@ function ScoreSearch({
             {scores.length === 0 ? (
               <tr>
                 <td colSpan={8} className="empty-state">
-                  {loading ? "불러오는 중..." : "저장된 성적이 아직 없습니다."}
+                  {loading ? "불러오는 중..." : "조회된 성적이 없습니다."}
                 </td>
               </tr>
             ) : (
@@ -79,4 +94,4 @@ function ScoreSearch({
   );
 }
 
-export default ScoreSearch;
+export default ScoreConditionSearch;

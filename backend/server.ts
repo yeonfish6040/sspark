@@ -13,10 +13,17 @@ type SaveRequestBody = {
 };
 
 type ScoreSaveRequestBody = {
+  student_no?: string;
   name?: string;
   korean?: string;
   english?: string;
   math?: string;
+};
+
+type ScoreSearchQuery = {
+  q?: string;
+  student_no?: string;
+  name?: string;
 };
 
 type StudentRow = {
@@ -27,6 +34,7 @@ type StudentRow = {
 
 type ScoreRow = {
   id: number;
+  student_no: string;
   name: string;
   korean: string;
   english: string;
@@ -62,6 +70,7 @@ const toScoreRow = (row: RowDataPacket): ScoreRow => {
 
   return {
     id: Number(row.id),
+    student_no: String(row.student_no),
     name: String(row.name),
     korean: String(row.korean),
     english: String(row.english),
@@ -112,7 +121,7 @@ app.get("/students", async (_req, res, next) => {
 app.get("/scores", async (_req, res, next) => {
   try {
     const [rows] = await db.execute<RowDataPacket[]>(
-      `SELECT id, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ORDER BY id DESC`,
+      `SELECT id, student_no, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ORDER BY id DESC`,
     );
 
     const scores = rows.map(toScoreRow);
@@ -128,13 +137,54 @@ app.get("/scores", async (_req, res, next) => {
 
 app.get("/scores/search", async (req, res, next) => {
   try {
-    const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
 
     const [rows] = await db.execute<RowDataPacket[]>(
-      name.length > 0
-        ? `SELECT id, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` WHERE name LIKE ? ORDER BY id DESC`
-        : `SELECT id, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ORDER BY id DESC`,
-      name.length > 0 ? [`%${name}%`] : [],
+      q.length > 0
+        ? `SELECT id, student_no, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` WHERE student_no LIKE ? OR name LIKE ? ORDER BY id DESC`
+        : `SELECT id, student_no, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ORDER BY id DESC`,
+      q.length > 0 ? [`%${q}%`, `%${q}%`] : [],
+    );
+
+    const scores = rows.map(toScoreRow);
+
+    res.status(200).json({
+      ok: true,
+      scores,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/scores/conditional-search", async (
+  req: Request<Record<string, never>, JsonResponse, never, ScoreSearchQuery>,
+  res,
+  next,
+) => {
+  try {
+    const conditions: string[] = [];
+    const values: Array<string> = [];
+
+    const studentNo =
+      typeof req.query.student_no === "string" ? req.query.student_no.trim() : "";
+    const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+
+    if (studentNo) {
+      conditions.push("student_no LIKE ?");
+      values.push(`%${studentNo}%`);
+    }
+
+    if (name) {
+      conditions.push("name LIKE ?");
+      values.push(`%${name}%`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `SELECT id, student_no, name, korean, english, math FROM \`${SCORE_TABLE_NAME}\` ${whereClause} ORDER BY id DESC`,
+      values,
     );
 
     const scores = rows.map(toScoreRow);
@@ -198,12 +248,14 @@ app.post(
     next: NextFunction,
   ) => {
     try {
+      const studentNo = req.body.student_no;
       const name = req.body.name;
       const korean = req.body.korean;
       const english = req.body.english;
       const math = req.body.math;
 
       if (
+        typeof studentNo !== "string" ||
         typeof name !== "string" ||
         typeof korean !== "string" ||
         typeof english !== "string" ||
@@ -211,22 +263,28 @@ app.post(
       ) {
         res.status(400).json({
           ok: false,
-          message: "`name`, `korean`, `english`, and `math` must be strings.",
+          message: "`student_no`, `name`, `korean`, `english`, and `math` must be strings.",
         });
         return;
       }
 
-      if (!name.trim() || !korean.trim() || !english.trim() || !math.trim()) {
+      if (
+        !studentNo.trim() ||
+        !name.trim() ||
+        !korean.trim() ||
+        !english.trim() ||
+        !math.trim()
+      ) {
         res.status(400).json({
           ok: false,
-          message: "`name`, `korean`, `english`, and `math` are required.",
+          message: "`student_no`, `name`, `korean`, `english`, and `math` are required.",
         });
         return;
       }
 
       const [result] = await db.execute<ResultSetHeader>(
-        `INSERT INTO \`${SCORE_TABLE_NAME}\` (name, korean, english, math) VALUES (?, ?, ?, ?)`,
-        [name, korean, english, math],
+        `INSERT INTO \`${SCORE_TABLE_NAME}\` (student_no, name, korean, english, math) VALUES (?, ?, ?, ?, ?)`,
+        [studentNo, name, korean, english, math],
       );
 
       res.status(201).json({
@@ -238,6 +296,19 @@ app.post(
     }
   },
 );
+
+app.post("/admin/reset-db", async (_req, res, next) => {
+  try {
+    await db.execute(`TRUNCATE TABLE \`${SCORE_TABLE_NAME}\``);
+    await db.execute(`TRUNCATE TABLE \`${TABLE_NAME}\``);
+
+    res.status(200).json({
+      ok: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.use(
   (

@@ -49,6 +49,11 @@
   background: #9a9a9a;
 }
 
+.menu-button.reset {
+  border-color: #8b5454;
+  background: #6d4545;
+}
+
 .page-panel {
   flex: 1;
   min-width: 0;
@@ -183,6 +188,20 @@
   display: flex;
   gap: 8px;
   width: min(100%, 360px);
+}
+
+.score-conditions {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 360px);
+  margin-bottom: 12px;
+}
+
+.score-condition-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 4px;
 }
 
 .score-search-bar input {

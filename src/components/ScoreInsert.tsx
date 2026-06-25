@@ -1,8 +1,10 @@
 type ScoreInsertProps = {
+  studentNo: string;
   name: string;
   korean: string;
   english: string;
   math: string;
+  onStudentNoChange: (value: string) => void;
   onNameChange: (value: string) => void;
   onKoreanChange: (value: string) => void;
   onEnglishChange: (value: string) => void;
@@ -11,10 +13,12 @@ type ScoreInsertProps = {
 };
 
 function ScoreInsert({
+  studentNo,
   name,
   korean,
   english,
   math,
+  onStudentNoChange,
   onNameChange,
   onKoreanChange,
   onEnglishChange,
@@ -23,6 +27,16 @@ function ScoreInsert({
 }: ScoreInsertProps) {
   return (
     <div className="score-form">
+      <div className="score-field">
+        <label htmlFor="score-student-no">학번:</label>
+        <input
+          type="text"
+          id="score-student-no"
+          value={studentNo}
+          onChange={(e) => onStudentNoChange(e.target.value)}
+        />
+      </div>
+
       <div className="score-field">
         <label htmlFor="score-name">이름:</label>
         <input

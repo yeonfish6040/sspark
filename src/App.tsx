@@ -4,6 +4,7 @@ import "./App.css";
 import Insert from "./components/Insert";
 import Search from "./components/Search";
 import ScoreInsert from "./components/ScoreInsert";
+import ScoreConditionSearch from "./components/ScoreConditionSearch";
 import ScoreSearch from "./components/ScoreSearch";
 import type { ScoreRow, StudentRow } from "./types";
 
@@ -14,7 +15,12 @@ const client = axios.create({
   },
 });
 
-type View = "student-insert" | "student-search" | "score-insert" | "score-search";
+type View =
+  | "student-insert"
+  | "student-search"
+  | "score-insert"
+  | "score-search"
+  | "score-condition-search";
 
 function App() {
   const [view, setView] = useState<View>("student-insert");
@@ -24,12 +30,15 @@ function App() {
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [scoreName, setScoreName] = useState<string>("");
+  const [scoreStudentNo, setScoreStudentNo] = useState<string>("");
   const [korean, setKorean] = useState<string>("");
   const [english, setEnglish] = useState<string>("");
   const [math, setMath] = useState<string>("");
   const [scores, setScores] = useState<ScoreRow[]>([]);
   const [scoreLoading, setScoreLoading] = useState<boolean>(false);
   const [scoreSearchTerm, setScoreSearchTerm] = useState<string>("");
+  const [conditionStudentNo, setConditionStudentNo] = useState<string>("");
+  const [conditionName, setConditionName] = useState<string>("");
 
   const loadStudents = async () => {
     setLoading(true);
@@ -62,13 +71,34 @@ function App() {
     try {
       const response = await client.get<{ ok: true; scores: ScoreRow[] }>("/scores/search", {
         params: {
-          name: scoreSearchTerm,
+          q: scoreSearchTerm,
         },
       });
       setScores(response.data.scores);
     } catch (error) {
       console.log(error);
       setMessage("성적 검색 실패");
+    } finally {
+      setScoreLoading(false);
+    }
+  };
+
+  const searchConditionalScores = async () => {
+    setScoreLoading(true);
+    try {
+      const response = await client.get<{ ok: true; scores: ScoreRow[] }>(
+        "/scores/conditional-search",
+        {
+          params: {
+            student_no: conditionStudentNo,
+            name: conditionName,
+          },
+        },
+      );
+      setScores(response.data.scores);
+    } catch (error) {
+      console.log(error);
+      setMessage("조건부 성적 검색 실패");
     } finally {
       setScoreLoading(false);
     }
@@ -97,12 +127,14 @@ function App() {
     setMessage("성적 저장 중...");
     try {
       await client.post("/scores", {
+        student_no: scoreStudentNo,
         name: scoreName,
         korean,
         english,
         math,
       });
       setMessage("성적 저장 완료");
+      setScoreStudentNo("");
       setScoreName("");
       setKorean("");
       setEnglish("");
@@ -114,6 +146,26 @@ function App() {
     }
   };
 
+  const resetDatabase = async () => {
+    const confirmed = window.confirm("DB를 초기화하면 학생/성적 데이터가 모두 삭제됩니다. 계속할까요?");
+    if (!confirmed) {
+      return;
+    }
+
+    setMessage("DB 초기화 중...");
+    try {
+      await client.post("/admin/reset-db");
+      setMessage("DB 초기화 완료");
+      setStudents([]);
+      setScores([]);
+      await loadStudents();
+      await loadScores();
+    } catch (error) {
+      console.log(error);
+      setMessage("DB 초기화 실패");
+    }
+  };
+
   const pageTitle =
     view === "student-insert"
       ? "학생 정보 입력"
@@ -121,7 +173,9 @@ function App() {
         ? "저장된 학생 목록"
         : view === "score-insert"
           ? "성적 입력"
-          : "저장된 성적 목록";
+          : view === "score-search"
+            ? "저장된 성적 목록"
+            : "조건부 성적 검색";
 
   return (
     <div className="page-shell">
@@ -163,6 +217,19 @@ function App() {
             >
               성적검색
             </button>
+            <button
+              className={view === "score-condition-search" ? "menu-button active" : "menu-button"}
+              onClick={() => {
+                setView("score-condition-search");
+                void loadScores();
+              }}
+              type="button"
+            >
+              조건부성적검색
+            </button>
+            <button className="menu-button reset" onClick={() => void resetDatabase()} type="button">
+              DB초기화
+            </button>
           </aside>
 
           <section className="page-panel">
@@ -182,23 +249,36 @@ function App() {
               <Search students={students} loading={loading} onRefresh={() => void loadStudents()} />
             ) : view === "score-insert" ? (
               <ScoreInsert
+                studentNo={scoreStudentNo}
                 name={scoreName}
                 korean={korean}
                 english={english}
                 math={math}
+                onStudentNoChange={setScoreStudentNo}
                 onNameChange={setScoreName}
                 onKoreanChange={setKorean}
                 onEnglishChange={setEnglish}
                 onMathChange={setMath}
                 onSave={saveScore}
               />
-            ) : (
+            ) : view === "score-search" ? (
               <ScoreSearch
                 searchTerm={scoreSearchTerm}
                 scores={scores}
                 loading={scoreLoading}
                 onSearchTermChange={setScoreSearchTerm}
                 onSearch={() => void searchScores()}
+                onRefresh={() => void loadScores()}
+              />
+            ) : (
+              <ScoreConditionSearch
+                studentNo={conditionStudentNo}
+                name={conditionName}
+                scores={scores}
+                loading={scoreLoading}
+                onStudentNoChange={setConditionStudentNo}
+                onNameChange={setConditionName}
+                onSearch={() => void searchConditionalScores()}
                 onRefresh={() => void loadScores()}
               />
             )}
