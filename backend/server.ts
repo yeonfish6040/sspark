@@ -299,8 +299,29 @@ app.post(
 
 app.post("/admin/reset-db", async (_req, res, next) => {
   try {
-    await db.execute(`TRUNCATE TABLE \`${SCORE_TABLE_NAME}\``);
-    await db.execute(`TRUNCATE TABLE \`${TABLE_NAME}\``);
+    await db.execute(`DROP TABLE IF EXISTS \`${SCORE_TABLE_NAME}\``);
+    await db.execute(`DROP TABLE IF EXISTS \`${TABLE_NAME}\``);
+
+    await db.execute(`
+      CREATE TABLE \`${TABLE_NAME}\` (
+        \`id\` INT NOT NULL AUTO_INCREMENT,
+        \`student_no\` VARCHAR(50) NOT NULL,
+        \`name\` VARCHAR(100) NOT NULL,
+        PRIMARY KEY (\`id\`)
+      )
+    `);
+
+    await db.execute(`
+      CREATE TABLE \`${SCORE_TABLE_NAME}\` (
+        \`id\` INT NOT NULL AUTO_INCREMENT,
+        \`student_no\` VARCHAR(50) NOT NULL,
+        \`name\` VARCHAR(100) NOT NULL,
+        \`korean\` VARCHAR(20) NOT NULL,
+        \`english\` VARCHAR(20) NOT NULL,
+        \`math\` VARCHAR(20) NOT NULL,
+        PRIMARY KEY (\`id\`)
+      )
+    `);
 
     res.status(200).json({
       ok: true,
