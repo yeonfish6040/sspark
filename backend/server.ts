@@ -12,7 +12,20 @@ type SaveRequestBody = {
   name?: string;
 };
 
+type StudentUpdateRequestBody = {
+  student_no?: string;
+  name?: string;
+};
+
 type ScoreSaveRequestBody = {
+  student_no?: string;
+  name?: string;
+  korean?: string;
+  english?: string;
+  math?: string;
+};
+
+type ScoreUpdateRequestBody = {
   student_no?: string;
   name?: string;
   korean?: string;
@@ -46,11 +59,13 @@ type ScoreRow = {
 type ApiErrorResponse = { ok: false; message: string };
 type HealthResponse = { ok: true };
 type SaveResponse = { ok: true; insertedId: number };
+type UpdateResponse = { ok: true };
 type StudentsResponse = { ok: true; students: StudentRow[] };
 type ScoresResponse = { ok: true; scores: ScoreRow[] };
 type JsonResponse =
   | HealthResponse
   | SaveResponse
+  | UpdateResponse
   | StudentsResponse
   | ScoresResponse
   | ApiErrorResponse;
@@ -240,6 +255,54 @@ app.post(
   },
 );
 
+app.put(
+  "/students/:id",
+  async (
+    req: Request<{ id: string }, JsonResponse, StudentUpdateRequestBody>,
+    res: Response<JsonResponse>,
+    next: NextFunction,
+  ) => {
+    try {
+      const id = Number(req.params.id);
+      const studentNo = req.body.student_no;
+      const name = req.body.name;
+
+      if (!Number.isFinite(id)) {
+        res.status(400).json({
+          ok: false,
+          message: "Invalid student id.",
+        });
+        return;
+      }
+
+      if (typeof studentNo !== "string" || typeof name !== "string") {
+        res.status(400).json({
+          ok: false,
+          message: "`student_no` and `name` must be strings.",
+        });
+        return;
+      }
+
+      if (!studentNo.trim() || !name.trim()) {
+        res.status(400).json({
+          ok: false,
+          message: "`student_no` and `name` are required.",
+        });
+        return;
+      }
+
+      await db.execute(
+        `UPDATE \`${TABLE_NAME}\` SET student_no = ?, name = ? WHERE id = ?`,
+        [studentNo, name, id],
+      );
+
+      res.status(200).json({ ok: true });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
 app.post(
   "/scores",
   async (
@@ -291,6 +354,69 @@ app.post(
         ok: true,
         insertedId: result.insertId,
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+app.put(
+  "/scores/:id",
+  async (
+    req: Request<{ id: string }, JsonResponse, ScoreUpdateRequestBody>,
+    res: Response<JsonResponse>,
+    next: NextFunction,
+  ) => {
+    try {
+      const id = Number(req.params.id);
+      const studentNo = req.body.student_no;
+      const name = req.body.name;
+      const korean = req.body.korean;
+      const english = req.body.english;
+      const math = req.body.math;
+
+      if (!Number.isFinite(id)) {
+        res.status(400).json({
+          ok: false,
+          message: "Invalid score id.",
+        });
+        return;
+      }
+
+      if (
+        typeof studentNo !== "string" ||
+        typeof name !== "string" ||
+        typeof korean !== "string" ||
+        typeof english !== "string" ||
+        typeof math !== "string"
+      ) {
+        res.status(400).json({
+          ok: false,
+          message: "`student_no`, `name`, `korean`, `english`, and `math` must be strings.",
+        });
+        return;
+      }
+
+      if (
+        !studentNo.trim() ||
+        !name.trim() ||
+        !korean.trim() ||
+        !english.trim() ||
+        !math.trim()
+      ) {
+        res.status(400).json({
+          ok: false,
+          message: "`student_no`, `name`, `korean`, `english`, and `math` are required.",
+        });
+        return;
+      }
+
+      await db.execute(
+        `UPDATE \`${SCORE_TABLE_NAME}\` SET student_no = ?, name = ?, korean = ?, english = ?, math = ? WHERE id = ?`,
+        [studentNo, name, korean, english, math, id],
+      );
+
+      res.status(200).json({ ok: true });
     } catch (error) {
       next(error);
     }

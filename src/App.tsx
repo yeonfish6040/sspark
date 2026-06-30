@@ -29,6 +29,7 @@ function App() {
   const [message, setMessage] = useState<string>("준비됨");
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [studentEditingId, setStudentEditingId] = useState<number | null>(null);
   const [scoreName, setScoreName] = useState<string>("");
   const [scoreStudentNo, setScoreStudentNo] = useState<string>("");
   const [korean, setKorean] = useState<string>("");
@@ -36,6 +37,7 @@ function App() {
   const [math, setMath] = useState<string>("");
   const [scores, setScores] = useState<ScoreRow[]>([]);
   const [scoreLoading, setScoreLoading] = useState<boolean>(false);
+  const [scoreEditingId, setScoreEditingId] = useState<number | null>(null);
   const [scoreSearchTerm, setScoreSearchTerm] = useState<string>("");
   const [conditionStudentNo, setConditionStudentNo] = useState<string>("");
   const [conditionName, setConditionName] = useState<string>("");
@@ -112,38 +114,72 @@ function App() {
   const save = async () => {
     setMessage("저장 중...");
     try {
-      await client.post("/save", { num, name });
-      setMessage("저장 완료");
+      if (studentEditingId !== null) {
+        await client.put(`/students/${studentEditingId}`, { student_no: num, name });
+        setMessage("수정 완료");
+      } else {
+        await client.post("/save", { num, name });
+        setMessage("저장 완료");
+      }
       setNum("");
       setName("");
+      setStudentEditingId(null);
       await loadStudents();
     } catch (error) {
       console.log(error);
-      setMessage("저장 실패");
+      setMessage(studentEditingId !== null ? "수정 실패" : "저장 실패");
     }
   };
 
   const saveScore = async () => {
     setMessage("성적 저장 중...");
     try {
-      await client.post("/scores", {
+      const payload = {
         student_no: scoreStudentNo,
         name: scoreName,
         korean,
         english,
         math,
-      });
-      setMessage("성적 저장 완료");
+      };
+
+      if (scoreEditingId !== null) {
+        await client.put(`/scores/${scoreEditingId}`, payload);
+        setMessage("성적 수정 완료");
+      } else {
+        await client.post("/scores", payload);
+        setMessage("성적 저장 완료");
+      }
+
       setScoreStudentNo("");
       setScoreName("");
       setKorean("");
       setEnglish("");
       setMath("");
+      setScoreEditingId(null);
       await loadScores();
     } catch (error) {
       console.log(error);
-      setMessage("성적 저장 실패");
+      setMessage(scoreEditingId !== null ? "성적 수정 실패" : "성적 저장 실패");
     }
+  };
+
+  const editStudent = (student: StudentRow) => {
+    setView("student-insert");
+    setStudentEditingId(student.id);
+    setNum(student.student_no);
+    setName(student.name);
+    setMessage("학생 수정 중");
+  };
+
+  const editScore = (score: ScoreRow) => {
+    setView("score-insert");
+    setScoreEditingId(score.id);
+    setScoreStudentNo(score.student_no);
+    setScoreName(score.name);
+    setKorean(score.korean);
+    setEnglish(score.english);
+    setMath(score.math);
+    setMessage("성적 수정 중");
   };
 
   const resetDatabase = async () => {
@@ -168,11 +204,15 @@ function App() {
 
   const pageTitle =
     view === "student-insert"
-      ? "학생 정보 입력"
+      ? studentEditingId !== null
+        ? "학생 정보 수정"
+        : "학생 정보 입력"
       : view === "student-search"
         ? "저장된 학생 목록"
         : view === "score-insert"
-          ? "성적 입력"
+          ? scoreEditingId !== null
+            ? "성적 수정"
+            : "성적 입력"
           : view === "score-search"
             ? "저장된 성적 목록"
             : "조건부 성적 검색";
@@ -185,7 +225,10 @@ function App() {
             <h2 className="menu-title">메뉴</h2>
             <button
               className={view === "student-insert" ? "menu-button active" : "menu-button"}
-              onClick={() => setView("student-insert")}
+              onClick={() => {
+                setView("student-insert");
+                setStudentEditingId(null);
+              }}
               type="button"
             >
               입력
@@ -202,7 +245,10 @@ function App() {
             </button>
             <button
               className={view === "score-insert" ? "menu-button active" : "menu-button"}
-              onClick={() => setView("score-insert")}
+              onClick={() => {
+                setView("score-insert");
+                setScoreEditingId(null);
+              }}
               type="button"
             >
               성적입력
@@ -241,12 +287,18 @@ function App() {
               <Insert
                 num={num}
                 name={name}
+                actionLabel={studentEditingId !== null ? "수정" : "저장"}
                 onNumChange={setNum}
                 onNameChange={setName}
                 onSave={save}
               />
             ) : view === "student-search" ? (
-              <Search students={students} loading={loading} onRefresh={() => void loadStudents()} />
+              <Search
+                students={students}
+                loading={loading}
+                onRefresh={() => void loadStudents()}
+                onEdit={editStudent}
+              />
             ) : view === "score-insert" ? (
               <ScoreInsert
                 studentNo={scoreStudentNo}
@@ -254,6 +306,7 @@ function App() {
                 korean={korean}
                 english={english}
                 math={math}
+                actionLabel={scoreEditingId !== null ? "수정" : "저장"}
                 onStudentNoChange={setScoreStudentNo}
                 onNameChange={setScoreName}
                 onKoreanChange={setKorean}
@@ -269,6 +322,7 @@ function App() {
                 onSearchTermChange={setScoreSearchTerm}
                 onSearch={() => void searchScores()}
                 onRefresh={() => void loadScores()}
+                onEdit={editScore}
               />
             ) : (
               <ScoreConditionSearch
@@ -280,6 +334,7 @@ function App() {
                 onNameChange={setConditionName}
                 onSearch={() => void searchConditionalScores()}
                 onRefresh={() => void loadScores()}
+                onEdit={editScore}
               />
             )}
           </section>

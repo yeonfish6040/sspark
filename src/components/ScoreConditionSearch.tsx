@@ -9,6 +9,7 @@ type ScoreConditionSearchProps = {
   onNameChange: (value: string) => void;
   onSearch: () => void;
   onRefresh: () => void;
+  onEdit: (score: ScoreRow) => void;
 };
 
 function ScoreConditionSearch({
@@ -20,6 +21,7 @@ function ScoreConditionSearch({
   onNameChange,
   onSearch,
   onRefresh,
+  onEdit,
 }: ScoreConditionSearchProps) {
   return (
     <div className="list-panel">
@@ -64,12 +66,13 @@ function ScoreConditionSearch({
               <th>수학</th>
               <th>합계</th>
               <th>평균</th>
+              <th>수정</th>
             </tr>
           </thead>
           <tbody>
             {scores.length === 0 ? (
               <tr>
-                <td colSpan={8} className="empty-state">
+                <td colSpan={9} className="empty-state">
                   {loading ? "불러오는 중..." : "조회된 성적이 없습니다."}
                 </td>
               </tr>
@@ -84,6 +87,11 @@ function ScoreConditionSearch({
                   <td>{score.math}</td>
                   <td>{score.total}</td>
                   <td>{score.average.toFixed(2)}</td>
+                  <td>
+                    <button className="ghost-button" onClick={() => onEdit(score)} type="button">
+                      수정
+                    </button>
+                  </td>
                 </tr>
               ))
             )}

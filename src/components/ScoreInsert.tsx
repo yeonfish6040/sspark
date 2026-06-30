@@ -4,6 +4,7 @@ type ScoreInsertProps = {
   korean: string;
   english: string;
   math: string;
+  actionLabel: string;
   onStudentNoChange: (value: string) => void;
   onNameChange: (value: string) => void;
   onKoreanChange: (value: string) => void;
@@ -18,6 +19,7 @@ function ScoreInsert({
   korean,
   english,
   math,
+  actionLabel,
   onStudentNoChange,
   onNameChange,
   onKoreanChange,
@@ -78,7 +80,7 @@ function ScoreInsert({
       </div>
 
       <button className="primary-button" onClick={onSave} type="button">
-        저장
+        {actionLabel}
       </button>
     </div>
   );

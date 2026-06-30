@@ -1,12 +1,13 @@
 type InsertProps = {
   num: string;
   name: string;
+  actionLabel: string;
   onNumChange: (value: string) => void;
   onNameChange: (value: string) => void;
   onSave: () => void;
 };
 
-function Insert({ num, name, onNumChange, onNameChange, onSave }: InsertProps) {
+function Insert({ num, name, actionLabel, onNumChange, onNameChange, onSave }: InsertProps) {
   return (
     <div className="form-panel">
       <div className="field">
@@ -34,7 +35,7 @@ function Insert({ num, name, onNumChange, onNameChange, onSave }: InsertProps) {
       </div>
 
       <button className="primary-button" onClick={onSave} type="button">
-        저장
+        {actionLabel}
       </button>
     </div>
   );
