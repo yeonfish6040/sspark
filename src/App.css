@@ -1,82 +1,18 @@
 .page-shell {
   min-height: 100vh;
-  position: relative;
-  overflow: hidden;
   background: #17181d;
   color: #dedede;
-}
-
-.fireworks-layer {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.firework {
-  position: absolute;
-  left: var(--left);
-  top: var(--top);
-  width: var(--size);
-  height: var(--size);
-  border-radius: 999px;
-  transform: translate(-50%, -50%);
-  background:
-    radial-gradient(circle, hsla(var(--hue), 100%, 70%, 1) 0 28%, transparent 30%),
-    radial-gradient(circle, hsla(calc(var(--hue) + 35), 100%, 65%, 0.95) 0 42%, transparent 44%);
-  box-shadow:
-    0 0 12px hsla(var(--hue), 100%, 70%, 0.8),
-    0 0 24px hsla(var(--hue), 100%, 70%, 0.45),
-    0 0 44px hsla(calc(var(--hue) + 35), 100%, 65%, 0.3);
-  animation:
-    firework-burst var(--duration) ease-out infinite,
-    firework-fade var(--duration) linear infinite;
-  animation-delay: var(--delay);
-}
-
-.firework::before,
-.firework::after {
-  content: "";
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: 2px;
-  height: 2px;
-  border-radius: 999px;
-  background: currentColor;
-  color: hsla(var(--hue), 100%, 72%, 0.95);
-  box-shadow:
-    0 0 0 1px hsla(var(--hue), 100%, 72%, 0.8),
-    0 0 10px hsla(var(--hue), 100%, 72%, 0.8),
-    0 0 18px hsla(var(--hue), 100%, 72%, 0.5);
-  transform-origin: center;
-  animation: firework-spark var(--duration) ease-out infinite;
-  animation-delay: var(--delay);
-}
-
-.firework::before {
-  --spread: 1;
-  transform: translate(-50%, -50%) rotate(calc(var(--rotate) * 1deg)) translateX(var(--x)) translateY(var(--y));
-}
-
-.firework::after {
-  --spread: -1;
-  transform: translate(-50%, -50%) rotate(calc(var(--rotate) * -1deg)) translateX(calc(var(--x) * -0.75)) translateY(calc(var(--y) * -0.75));
 }
 
 .app-shell {
   min-height: 100vh;
   display: flex;
-  position: relative;
-  z-index: 2;
 }
 
 .workspace {
   width: 100%;
   display: flex;
   min-height: 100vh;
-  position: relative;
-  z-index: 2;
 }
 
 .menu-panel {
@@ -125,8 +61,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  z-index: 2;
 }
 
 .edit-page {
@@ -349,56 +283,6 @@ tbody tr + tr td {
   padding: 18px 10px;
   text-align: center;
   color: #bdbdbd;
-}
-
-@keyframes firework-burst {
-  0% {
-    transform: translate(-50%, -50%) scale(0.2);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  35% {
-    transform: translate(-50%, -50%) scale(1.4);
-    opacity: 0.95;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(2.2);
-    opacity: 0;
-  }
-}
-
-@keyframes firework-fade {
-  0%,
-  100% {
-    filter: saturate(1.2);
-  }
-  50% {
-    filter: saturate(2.1) brightness(1.2);
-  }
-}
-
-@keyframes firework-spark {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
-  }
-  12% {
-    opacity: 1;
-  }
-  45% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform:
-      translate(-50%, -50%)
-      translateX(calc(var(--x) * 1.1))
-      translateY(calc(var(--y) * 1.1))
-      scale(0.1)
-      rotate(720deg);
-  }
 }
 
 @media (max-width: 900px) {
