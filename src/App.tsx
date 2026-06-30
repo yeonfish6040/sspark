@@ -116,11 +116,11 @@ function App() {
   }, []);
 
   const save = async () => {
-    const studentKey = studentEditingNo ?? num.trim();
-    const wasEditing = studentKey.length > 0;
+    const wasEditing = view === "student-edit";
+    const studentKey = studentEditingNo;
     setMessage("저장 중...");
     try {
-      if (wasEditing) {
+      if (wasEditing && studentKey) {
         await client.put(`/students/${encodeURIComponent(studentKey)}`, { student_no: num, name });
         setMessage("수정 완료");
       } else {
@@ -141,8 +141,8 @@ function App() {
   };
 
   const saveScore = async () => {
-    const scoreKey = scoreEditingNo ?? scoreStudentNo.trim();
-    const wasEditing = scoreKey.length > 0;
+    const wasEditing = view === "score-edit";
+    const scoreKey = scoreEditingNo;
     setMessage("성적 저장 중...");
     try {
       const payload = {
@@ -153,7 +153,7 @@ function App() {
         math,
       };
 
-      if (wasEditing) {
+      if (wasEditing && scoreKey) {
         await client.put(`/scores/${encodeURIComponent(scoreKey)}`, payload);
         setMessage("성적 수정 완료");
       } else {
