@@ -116,11 +116,12 @@ function App() {
   }, []);
 
   const save = async () => {
-    const wasEditing = studentEditingNo !== null;
+    const studentKey = studentEditingNo ?? num.trim();
+    const wasEditing = studentKey.length > 0;
     setMessage("저장 중...");
     try {
       if (wasEditing) {
-        await client.put(`/students/${encodeURIComponent(studentEditingNo)}`, { student_no: num, name });
+        await client.put(`/students/${encodeURIComponent(studentKey)}`, { student_no: num, name });
         setMessage("수정 완료");
       } else {
         await client.post("/save", { num, name });
@@ -135,12 +136,13 @@ function App() {
       }
     } catch (error) {
       console.log(error);
-      setMessage(studentEditingNo !== null ? "수정 실패" : "저장 실패");
+      setMessage(wasEditing ? "수정 실패" : "저장 실패");
     }
   };
 
   const saveScore = async () => {
-    const wasEditing = scoreEditingNo !== null;
+    const scoreKey = scoreEditingNo ?? scoreStudentNo.trim();
+    const wasEditing = scoreKey.length > 0;
     setMessage("성적 저장 중...");
     try {
       const payload = {
@@ -152,7 +154,7 @@ function App() {
       };
 
       if (wasEditing) {
-        await client.put(`/scores/${encodeURIComponent(scoreEditingNo)}`, payload);
+        await client.put(`/scores/${encodeURIComponent(scoreKey)}`, payload);
         setMessage("성적 수정 완료");
       } else {
         await client.post("/scores", payload);
@@ -171,7 +173,7 @@ function App() {
       }
     } catch (error) {
       console.log(error);
-      setMessage(scoreEditingNo !== null ? "성적 수정 실패" : "성적 저장 실패");
+      setMessage(wasEditing ? "성적 수정 실패" : "성적 저장 실패");
     }
   };
 
@@ -335,7 +337,6 @@ function App() {
               />
             ) : view === "student-edit" ? (
               <StudentEditPage
-                hasTarget={studentEditingNo !== null}
                 num={num}
                 name={name}
                 onNumChange={setNum}
@@ -372,7 +373,6 @@ function App() {
               />
             ) : view === "score-edit" ? (
               <ScoreEditPage
-                hasTarget={scoreEditingNo !== null}
                 studentNo={scoreStudentNo}
                 name={scoreName}
                 korean={korean}
