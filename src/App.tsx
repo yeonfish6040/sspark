@@ -256,6 +256,18 @@ function App() {
               검색
             </button>
             <button
+              className={view === "student-edit" ? "menu-button active" : "menu-button"}
+              onClick={() => {
+                setView("student-edit");
+                setStudentEditingId(null);
+                setNum("");
+                setName("");
+              }}
+              type="button"
+            >
+              학생수정
+            </button>
+            <button
               className={view === "score-insert" ? "menu-button active" : "menu-button"}
               onClick={() => {
                 setView("score-insert");
@@ -274,6 +286,21 @@ function App() {
               type="button"
             >
               성적검색
+            </button>
+            <button
+              className={view === "score-edit" ? "menu-button active" : "menu-button"}
+              onClick={() => {
+                setView("score-edit");
+                setScoreEditingId(null);
+                setScoreStudentNo("");
+                setScoreName("");
+                setKorean("");
+                setEnglish("");
+                setMath("");
+              }}
+              type="button"
+            >
+              성적수정
             </button>
             <button
               className={view === "score-condition-search" ? "menu-button active" : "menu-button"}
@@ -306,6 +333,7 @@ function App() {
               />
             ) : view === "student-edit" ? (
               <StudentEditPage
+                hasTarget={studentEditingId !== null}
                 num={num}
                 name={name}
                 onNumChange={setNum}
@@ -342,6 +370,7 @@ function App() {
               />
             ) : view === "score-edit" ? (
               <ScoreEditPage
+                hasTarget={scoreEditingId !== null}
                 studentNo={scoreStudentNo}
                 name={scoreName}
                 korean={korean}
