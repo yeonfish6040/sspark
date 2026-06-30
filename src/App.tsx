@@ -318,10 +318,12 @@ function App() {
           </aside>
 
           <section className="page-panel">
-            <div className="page-head">
-              <h1>{pageTitle}</h1>
-              <div className="status-pill">{message}</div>
-            </div>
+            {view === "student-edit" || view === "score-edit" ? null : (
+              <div className="page-head">
+                <h1>{pageTitle}</h1>
+                <div className="status-pill">{message}</div>
+              </div>
+            )}
             {view === "student-insert" ? (
               <Insert
                 num={num}
