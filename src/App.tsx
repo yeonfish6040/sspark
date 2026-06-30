@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import axios from "axios";
 import "./App.css";
 import Insert from "./components/Insert";
@@ -45,6 +45,20 @@ function App() {
   const [scoreSearchTerm, setScoreSearchTerm] = useState<string>("");
   const [conditionStudentNo, setConditionStudentNo] = useState<string>("");
   const [conditionName, setConditionName] = useState<string>("");
+  const [fireworks] = useState(() =>
+    Array.from({ length: 42 }, (_, index) => ({
+      id: index,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      size: 6 + Math.random() * 16,
+      hue: Math.floor(Math.random() * 360),
+      delay: Math.random() * 4,
+      duration: 1.6 + Math.random() * 2.4,
+      x: (Math.random() * 2 - 1) * 220,
+      y: (Math.random() * 2 - 1) * 220,
+      rotate: Math.random() * 360,
+    })),
+  );
 
   const loadStudents = async () => {
     setLoading(true);
@@ -233,6 +247,27 @@ function App() {
 
   return (
     <div className="page-shell">
+      <div className="fireworks-layer" aria-hidden="true">
+        {fireworks.map((firework) => (
+          <span
+            key={firework.id}
+            className="firework"
+            style={
+              {
+                "--left": `${firework.left}%`,
+                "--top": `${firework.top}%`,
+                "--size": `${firework.size}px`,
+                "--hue": firework.hue,
+                "--delay": `${firework.delay}s`,
+                "--duration": `${firework.duration}s`,
+                "--x": `${firework.x}px`,
+                "--y": `${firework.y}px`,
+                "--rotate": `${firework.rotate}deg`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
       <main className="app-shell">
         <div className="workspace">
           <aside className="menu-panel">
