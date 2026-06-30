@@ -98,7 +98,7 @@ const toScoreRow = (row: RowDataPacket): ScoreRow => {
 app.use(express.json());
 app.use((_, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
@@ -256,21 +256,21 @@ app.post(
 );
 
 app.put(
-  "/students/:id",
+  "/students/:studentNo",
   async (
-    req: Request<{ id: string }, JsonResponse, StudentUpdateRequestBody>,
+    req: Request<{ studentNo: string }, JsonResponse, StudentUpdateRequestBody>,
     res: Response<JsonResponse>,
     next: NextFunction,
   ) => {
     try {
-      const id = Number(req.params.id);
+      const currentStudentNo = req.params.studentNo;
       const studentNo = req.body.student_no;
       const name = req.body.name;
 
-      if (!Number.isFinite(id)) {
+      if (typeof currentStudentNo !== "string" || !currentStudentNo.trim()) {
         res.status(400).json({
           ok: false,
-          message: "Invalid student id.",
+          message: "Invalid current student_no.",
         });
         return;
       }
@@ -291,10 +291,18 @@ app.put(
         return;
       }
 
-      await db.execute(
-        `UPDATE \`${TABLE_NAME}\` SET student_no = ?, name = ? WHERE id = ?`,
-        [studentNo, name, id],
+      const [result] = await db.execute<ResultSetHeader>(
+        `UPDATE \`${TABLE_NAME}\` SET student_no = ?, name = ? WHERE student_no = ?`,
+        [studentNo, name, currentStudentNo],
       );
+
+      if (result.affectedRows === 0) {
+        res.status(404).json({
+          ok: false,
+          message: "Student not found.",
+        });
+        return;
+      }
 
       res.status(200).json({ ok: true });
     } catch (error) {
@@ -361,24 +369,24 @@ app.post(
 );
 
 app.put(
-  "/scores/:id",
+  "/scores/:studentNo",
   async (
-    req: Request<{ id: string }, JsonResponse, ScoreUpdateRequestBody>,
+    req: Request<{ studentNo: string }, JsonResponse, ScoreUpdateRequestBody>,
     res: Response<JsonResponse>,
     next: NextFunction,
   ) => {
     try {
-      const id = Number(req.params.id);
+      const currentStudentNo = req.params.studentNo;
       const studentNo = req.body.student_no;
       const name = req.body.name;
       const korean = req.body.korean;
       const english = req.body.english;
       const math = req.body.math;
 
-      if (!Number.isFinite(id)) {
+      if (typeof currentStudentNo !== "string" || !currentStudentNo.trim()) {
         res.status(400).json({
           ok: false,
-          message: "Invalid score id.",
+          message: "Invalid current student_no.",
         });
         return;
       }
@@ -411,10 +419,18 @@ app.put(
         return;
       }
 
-      await db.execute(
-        `UPDATE \`${SCORE_TABLE_NAME}\` SET student_no = ?, name = ?, korean = ?, english = ?, math = ? WHERE id = ?`,
-        [studentNo, name, korean, english, math, id],
+      const [result] = await db.execute<ResultSetHeader>(
+        `UPDATE \`${SCORE_TABLE_NAME}\` SET student_no = ?, name = ?, korean = ?, english = ?, math = ? WHERE student_no = ?`,
+        [studentNo, name, korean, english, math, currentStudentNo],
       );
+
+      if (result.affectedRows === 0) {
+        res.status(404).json({
+          ok: false,
+          message: "Score not found.",
+        });
+        return;
+      }
 
       res.status(200).json({ ok: true });
     } catch (error) {

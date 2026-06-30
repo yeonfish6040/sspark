@@ -33,7 +33,7 @@ function App() {
   const [message, setMessage] = useState<string>("준비됨");
   const [students, setStudents] = useState<StudentRow[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [studentEditingId, setStudentEditingId] = useState<number | null>(null);
+  const [studentEditingNo, setStudentEditingNo] = useState<string | null>(null);
   const [scoreName, setScoreName] = useState<string>("");
   const [scoreStudentNo, setScoreStudentNo] = useState<string>("");
   const [korean, setKorean] = useState<string>("");
@@ -41,7 +41,7 @@ function App() {
   const [math, setMath] = useState<string>("");
   const [scores, setScores] = useState<ScoreRow[]>([]);
   const [scoreLoading, setScoreLoading] = useState<boolean>(false);
-  const [scoreEditingId, setScoreEditingId] = useState<number | null>(null);
+  const [scoreEditingNo, setScoreEditingNo] = useState<string | null>(null);
   const [scoreSearchTerm, setScoreSearchTerm] = useState<string>("");
   const [conditionStudentNo, setConditionStudentNo] = useState<string>("");
   const [conditionName, setConditionName] = useState<string>("");
@@ -116,11 +116,11 @@ function App() {
   }, []);
 
   const save = async () => {
-    const wasEditing = studentEditingId !== null;
+    const wasEditing = studentEditingNo !== null;
     setMessage("저장 중...");
     try {
       if (wasEditing) {
-        await client.put(`/students/${studentEditingId}`, { student_no: num, name });
+        await client.put(`/students/${encodeURIComponent(studentEditingNo)}`, { student_no: num, name });
         setMessage("수정 완료");
       } else {
         await client.post("/save", { num, name });
@@ -128,19 +128,19 @@ function App() {
       }
       setNum("");
       setName("");
-      setStudentEditingId(null);
+      setStudentEditingNo(null);
       await loadStudents();
       if (wasEditing) {
         setView("student-search");
       }
     } catch (error) {
       console.log(error);
-      setMessage(studentEditingId !== null ? "수정 실패" : "저장 실패");
+      setMessage(studentEditingNo !== null ? "수정 실패" : "저장 실패");
     }
   };
 
   const saveScore = async () => {
-    const wasEditing = scoreEditingId !== null;
+    const wasEditing = scoreEditingNo !== null;
     setMessage("성적 저장 중...");
     try {
       const payload = {
@@ -152,7 +152,7 @@ function App() {
       };
 
       if (wasEditing) {
-        await client.put(`/scores/${scoreEditingId}`, payload);
+        await client.put(`/scores/${encodeURIComponent(scoreEditingNo)}`, payload);
         setMessage("성적 수정 완료");
       } else {
         await client.post("/scores", payload);
@@ -164,20 +164,20 @@ function App() {
       setKorean("");
       setEnglish("");
       setMath("");
-      setScoreEditingId(null);
+      setScoreEditingNo(null);
       await loadScores();
       if (wasEditing) {
         setView("score-search");
       }
     } catch (error) {
       console.log(error);
-      setMessage(scoreEditingId !== null ? "성적 수정 실패" : "성적 저장 실패");
+      setMessage(scoreEditingNo !== null ? "성적 수정 실패" : "성적 저장 실패");
     }
   };
 
   const editStudent = (student: StudentRow) => {
     setView("student-edit");
-    setStudentEditingId(student.id);
+    setStudentEditingNo(student.student_no);
     setNum(student.student_no);
     setName(student.name);
     setMessage("학생 수정 중");
@@ -185,7 +185,7 @@ function App() {
 
   const editScore = (score: ScoreRow) => {
     setView("score-edit");
-    setScoreEditingId(score.id);
+    setScoreEditingNo(score.student_no);
     setScoreStudentNo(score.student_no);
     setScoreName(score.name);
     setKorean(score.korean);
@@ -239,7 +239,7 @@ function App() {
               className={view === "student-insert" ? "menu-button active" : "menu-button"}
               onClick={() => {
                 setView("student-insert");
-                setStudentEditingId(null);
+                setStudentEditingNo(null);
               }}
               type="button"
             >
@@ -259,7 +259,7 @@ function App() {
               className={view === "student-edit" ? "menu-button active" : "menu-button"}
               onClick={() => {
                 setView("student-edit");
-                setStudentEditingId(null);
+                setStudentEditingNo(null);
                 setNum("");
                 setName("");
               }}
@@ -271,7 +271,7 @@ function App() {
               className={view === "score-insert" ? "menu-button active" : "menu-button"}
               onClick={() => {
                 setView("score-insert");
-                setScoreEditingId(null);
+                setScoreEditingNo(null);
               }}
               type="button"
             >
@@ -291,7 +291,7 @@ function App() {
               className={view === "score-edit" ? "menu-button active" : "menu-button"}
               onClick={() => {
                 setView("score-edit");
-                setScoreEditingId(null);
+                setScoreEditingNo(null);
                 setScoreStudentNo("");
                 setScoreName("");
                 setKorean("");
@@ -335,7 +335,7 @@ function App() {
               />
             ) : view === "student-edit" ? (
               <StudentEditPage
-                hasTarget={studentEditingId !== null}
+                hasTarget={studentEditingNo !== null}
                 num={num}
                 name={name}
                 onNumChange={setNum}
@@ -343,7 +343,7 @@ function App() {
                 onSave={save}
                 onBack={() => {
                   setView("student-search");
-                  setStudentEditingId(null);
+                  setStudentEditingNo(null);
                   setNum("");
                   setName("");
                 }}
@@ -372,7 +372,7 @@ function App() {
               />
             ) : view === "score-edit" ? (
               <ScoreEditPage
-                hasTarget={scoreEditingId !== null}
+                hasTarget={scoreEditingNo !== null}
                 studentNo={scoreStudentNo}
                 name={scoreName}
                 korean={korean}
@@ -386,7 +386,7 @@ function App() {
                 onSave={saveScore}
                 onBack={() => {
                   setView("score-search");
-                  setScoreEditingId(null);
+                  setScoreEditingNo(null);
                   setScoreStudentNo("");
                   setScoreName("");
                   setKorean("");
