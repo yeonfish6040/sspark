@@ -63,6 +63,26 @@
   align-items: center;
 }
 
+.edit-page {
+  width: min(100%, 360px);
+  display: grid;
+  gap: 18px;
+}
+
+.edit-page-header {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+.edit-page-header h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  font-weight: 700;
+  text-align: center;
+  color: #f2f2f2;
+}
+
 .page-head {
   width: min(100%, 360px);
   display: flex;

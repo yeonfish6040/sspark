@@ -5,7 +5,9 @@ import Insert from "./components/Insert";
 import Search from "./components/Search";
 import ScoreInsert from "./components/ScoreInsert";
 import ScoreConditionSearch from "./components/ScoreConditionSearch";
+import ScoreEditPage from "./components/ScoreEditPage";
 import ScoreSearch from "./components/ScoreSearch";
+import StudentEditPage from "./components/StudentEditPage";
 import type { ScoreRow, StudentRow } from "./types";
 
 const client = axios.create({
@@ -17,8 +19,10 @@ const client = axios.create({
 
 type View =
   | "student-insert"
+  | "student-edit"
   | "student-search"
   | "score-insert"
+  | "score-edit"
   | "score-search"
   | "score-condition-search";
 
@@ -112,9 +116,10 @@ function App() {
   }, []);
 
   const save = async () => {
+    const wasEditing = studentEditingId !== null;
     setMessage("저장 중...");
     try {
-      if (studentEditingId !== null) {
+      if (wasEditing) {
         await client.put(`/students/${studentEditingId}`, { student_no: num, name });
         setMessage("수정 완료");
       } else {
@@ -125,6 +130,9 @@ function App() {
       setName("");
       setStudentEditingId(null);
       await loadStudents();
+      if (wasEditing) {
+        setView("student-search");
+      }
     } catch (error) {
       console.log(error);
       setMessage(studentEditingId !== null ? "수정 실패" : "저장 실패");
@@ -132,6 +140,7 @@ function App() {
   };
 
   const saveScore = async () => {
+    const wasEditing = scoreEditingId !== null;
     setMessage("성적 저장 중...");
     try {
       const payload = {
@@ -142,7 +151,7 @@ function App() {
         math,
       };
 
-      if (scoreEditingId !== null) {
+      if (wasEditing) {
         await client.put(`/scores/${scoreEditingId}`, payload);
         setMessage("성적 수정 완료");
       } else {
@@ -157,6 +166,9 @@ function App() {
       setMath("");
       setScoreEditingId(null);
       await loadScores();
+      if (wasEditing) {
+        setView("score-search");
+      }
     } catch (error) {
       console.log(error);
       setMessage(scoreEditingId !== null ? "성적 수정 실패" : "성적 저장 실패");
@@ -164,7 +176,7 @@ function App() {
   };
 
   const editStudent = (student: StudentRow) => {
-    setView("student-insert");
+    setView("student-edit");
     setStudentEditingId(student.id);
     setNum(student.student_no);
     setName(student.name);
@@ -172,7 +184,7 @@ function App() {
   };
 
   const editScore = (score: ScoreRow) => {
-    setView("score-insert");
+    setView("score-edit");
     setScoreEditingId(score.id);
     setScoreStudentNo(score.student_no);
     setScoreName(score.name);
@@ -204,15 +216,15 @@ function App() {
 
   const pageTitle =
     view === "student-insert"
-      ? studentEditingId !== null
+      ? "학생 정보 입력"
+      : view === "student-edit"
         ? "학생 정보 수정"
-        : "학생 정보 입력"
       : view === "student-search"
         ? "저장된 학생 목록"
-        : view === "score-insert"
-          ? scoreEditingId !== null
+      : view === "score-insert"
+          ? "성적 입력"
+          : view === "score-edit"
             ? "성적 수정"
-            : "성적 입력"
           : view === "score-search"
             ? "저장된 성적 목록"
             : "조건부 성적 검색";
@@ -287,10 +299,24 @@ function App() {
               <Insert
                 num={num}
                 name={name}
-                actionLabel={studentEditingId !== null ? "수정" : "저장"}
+                actionLabel="저장"
                 onNumChange={setNum}
                 onNameChange={setName}
                 onSave={save}
+              />
+            ) : view === "student-edit" ? (
+              <StudentEditPage
+                num={num}
+                name={name}
+                onNumChange={setNum}
+                onNameChange={setName}
+                onSave={save}
+                onBack={() => {
+                  setView("student-search");
+                  setStudentEditingId(null);
+                  setNum("");
+                  setName("");
+                }}
               />
             ) : view === "student-search" ? (
               <Search
@@ -306,13 +332,36 @@ function App() {
                 korean={korean}
                 english={english}
                 math={math}
-                actionLabel={scoreEditingId !== null ? "수정" : "저장"}
+                actionLabel="저장"
                 onStudentNoChange={setScoreStudentNo}
                 onNameChange={setScoreName}
                 onKoreanChange={setKorean}
                 onEnglishChange={setEnglish}
                 onMathChange={setMath}
                 onSave={saveScore}
+              />
+            ) : view === "score-edit" ? (
+              <ScoreEditPage
+                studentNo={scoreStudentNo}
+                name={scoreName}
+                korean={korean}
+                english={english}
+                math={math}
+                onStudentNoChange={setScoreStudentNo}
+                onNameChange={setScoreName}
+                onKoreanChange={setKorean}
+                onEnglishChange={setEnglish}
+                onMathChange={setMath}
+                onSave={saveScore}
+                onBack={() => {
+                  setView("score-search");
+                  setScoreEditingId(null);
+                  setScoreStudentNo("");
+                  setScoreName("");
+                  setKorean("");
+                  setEnglish("");
+                  setMath("");
+                }}
               />
             ) : view === "score-search" ? (
               <ScoreSearch
