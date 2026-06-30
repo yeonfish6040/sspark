@@ -1,7 +1,6 @@
 import Insert from "./Insert";
 
 type StudentEditPageProps = {
-  hasTarget: boolean;
   num: string;
   name: string;
   onNumChange: (value: string) => void;
@@ -11,7 +10,6 @@ type StudentEditPageProps = {
 };
 
 function StudentEditPage({
-  hasTarget,
   num,
   name,
   onNumChange,
@@ -27,18 +25,14 @@ function StudentEditPage({
         </button>
         <h1>학생 정보 수정</h1>
       </div>
-      {hasTarget ? (
-        <Insert
-          num={num}
-          name={name}
-          actionLabel="수정"
-          onNumChange={onNumChange}
-          onNameChange={onNameChange}
-          onSave={onSave}
-        />
-      ) : (
-        <div className="empty-note">목록에서 수정 버튼을 눌러주세요.</div>
-      )}
+      <Insert
+        num={num}
+        name={name}
+        actionLabel="수정"
+        onNumChange={onNumChange}
+        onNameChange={onNameChange}
+        onSave={onSave}
+      />
     </div>
   );
 }
